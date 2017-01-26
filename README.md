@@ -8,3 +8,6 @@
 
 # prod build
 - `yarn build-prod`
+
+# open build in browser
+- `open build/index.html'
