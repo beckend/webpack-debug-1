@@ -14,4 +14,4 @@
 - `yarn build-prod`
 
 # open build in browser manually
-- `open build/index.html'
+- `open build/index.html`
