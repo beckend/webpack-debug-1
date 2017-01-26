@@ -1,7 +1,9 @@
 import * as path from 'path';
 import * as webpack from 'webpack';
+import * as ExtractTextPlugin from 'extract-text-webpack-plugin';
 import { Configuration } from 'webpack';
 
+const { extract: extractCss } = ExtractTextPlugin;
 const { TsConfigPathsPlugin } = require('awesome-typescript-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
@@ -12,6 +14,37 @@ const PATH_BUILD = path.join(PATH_ROOT, 'build');
 export default () => {
   const { NODE_ENV } = process.env;
   const isProd = NODE_ENV === 'production';
+  const isDev = !isProd;
+
+  const cssLoaderNormal = [
+    {
+      loader: 'css-loader',
+      options: {
+        sourceMap: true,
+        importLoaders: 1,
+        minimize: isProd
+      }
+    },
+    {
+      loader: 'postcss-loader'
+    }
+  ];
+
+  const cssLoaderLocal = [
+    {
+      loader: 'css-loader',
+      options: {
+        sourceMap: true,
+        importLoaders: 1,
+        localIdentName: '[name]_[local]_[hash:base64:3]',
+        modules: true,
+        minimize: isProd
+      }
+    },
+    {
+      loader: 'postcss-loader'
+    }
+  ];
 
   const config = {
     context: PATH_SRC,
@@ -43,6 +76,7 @@ export default () => {
             }
           ]
         },
+
         {
           test: /\.(pug)$/,
           use: [
@@ -53,33 +87,164 @@ export default () => {
               }
             }
           ]
+        },
+
+        {
+          test: /\.(jpe?g|png|gif|svg|woff|woff2|eot|ttf|ico|wav|mp3|flac|ogg|oga|wma)(\?.*)?$/,
+          use: [
+            {
+              loader: 'file-loader',
+              options: {
+                name: '[sha512:hash:base64:7].[ext]',
+              }
+            }
+          ]
+        },
+
+        // normal css loader
+        {
+          exclude: [
+            /\.local\.(css)$/,
+            /[\/\\]node_modules[\/\\]flexboxgrid/,
+          ],
+          test: /\.(css)$/,
+          loaders: extractCss({
+            loader: [
+              ...cssLoaderNormal
+            ]
+          } as any)
+        },
+
+        // local css loader
+        {
+          exclude: [
+            /node_modules/,
+          ],
+          test: /\.local\.(css)$/,
+          loaders: extractCss({
+            loader: [
+              ...cssLoaderLocal
+            ]
+          } as any)
+        },
+
+        // Local sass specific node_modules includes
+        {
+          include: [
+            /[\/\\]node_modules[\/\\]flexboxgrid/,
+          ],
+          test: /\.(css)$/,
+          loaders: extractCss({
+            loader: [
+              ...cssLoaderLocal
+            ]
+          } as any)
+        },
+
+        // normal sass loader
+        {
+          exclude: [
+            /\.local\.(scss)$/,
+            /[\/\\]node_modules[\/\\]react-toolbox/,
+          ],
+          test: /\.(scss)$/,
+          loaders: extractCss({
+            loader: [
+              ...cssLoaderNormal,
+              {
+                loader: 'resolve-url-loader'
+              },
+              {
+                loader: 'sass-loader',
+                options: {
+                  sourceMap: true
+                }
+              }
+            ]
+          } as any)
+        },
+
+        // local sass loader
+        {
+          exclude: [
+            /node_modules/,
+          ],
+          test: /\.local\.(scss)$/,
+          loaders: extractCss({
+            loader: [
+              ...cssLoaderLocal,
+              {
+                loader: 'resolve-url-loader'
+              },
+              {
+                loader: 'sass-loader',
+                options: {
+                  sourceMap: true
+                }
+              }
+            ]
+          } as any)
+        },
+
+        // Local sass specific node_modules includes
+        {
+          include: [
+            /[\/\\]node_modules[\/\\]react-toolbox/,
+          ],
+          test: /\.(scss)$/,
+          loaders: extractCss({
+            loader: [
+              ...cssLoaderLocal,
+              {
+                loader: 'resolve-url-loader'
+              },
+              {
+                loader: 'sass-loader',
+                options: {
+                  sourceMap: true
+                }
+              }
+            ]
+          } as any)
         }
       ]
     },
     plugins: [
-        new TsConfigPathsPlugin(),
+      new (webpack as any).ProgressPlugin(),
 
-        new HtmlWebpackPlugin({
-          filename: 'index.html',
-          inject: true,
-          minify: false,
-          template: path.join(PATH_SRC, 'index.pug'),
-        }),
+      new TsConfigPathsPlugin(),
 
-        new webpack.LoaderOptionsPlugin({
-          debug: true,
-          minimize: isProd,
-          options: {
-            context: PATH_SRC,
-            debug: true,
-            // Needed for plugins that relies on context...
-            // they lose other props when in LoaderOptionsPlugin
-            // https://github.com/webpack/webpack/issues/3018
-            output: {
-              path: PATH_BUILD,
-            }
-          }
-        })
+      new HtmlWebpackPlugin({
+        filename: 'index.html',
+        inject: true,
+        minify: false,
+        template: path.join(PATH_SRC, 'index.pug'),
+      }),
+
+      new ExtractTextPlugin({
+        allChunks: true,
+        disable: false,
+        filename: '[name]-[chunkhash].css',
+      }),
+
+      new webpack.LoaderOptionsPlugin({
+        debug: isDev,
+        minimize: isProd,
+        options: {
+          context: PATH_SRC,
+          debug: isDev,
+          // Needed for plugins that relies on context...
+          // they lose other props when in LoaderOptionsPlugin
+          // https://github.com/webpack/webpack/issues/3018
+          output: {
+            path: PATH_BUILD,
+          },
+
+          postcss: () => ([
+            require('postcss-cssnext')({ browsers: ['last 2 versions', 'IE > 10'] })
+          ]),
+        }
+      })
     ]
   };
 
