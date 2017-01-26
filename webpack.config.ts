@@ -284,7 +284,6 @@ export default () => {
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.jsx'],
     },
-
   };
 
   Boolean(config as Configuration);
