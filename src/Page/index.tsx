@@ -1,11 +1,10 @@
+/* tslint:disable: max-line-length */
 import * as React from 'react';
 import { AppBar, Link, Navigation } from 'react-toolbox';
 import 'react-toolbox/lib/tooltip/theme.scss';
 
 const theme = require('./index.default.local.css');
 const { Grid, Row, Col } = require('react-flexbox-grid');
-
-console.log(theme)
 
 const GithubIcon = () => (
   <svg viewBox='0 0 284 277'>
@@ -24,7 +23,7 @@ const Page: React.SFC<IPageProps> = ({ children }) => {
             leftIcon='menu'
             rightIcon={ <GithubIcon /> }
             theme={ {
-              appBar: 'theme.AppBar',
+              appBar: theme.AppBar,
             } }
           >
             <Navigation type='horizontal'>

@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as glob from 'glob';
 import * as webpack from 'webpack';
 import * as ExtractTextPlugin from 'extract-text-webpack-plugin';
 import { Configuration } from 'webpack';
@@ -6,10 +7,12 @@ import { Configuration } from 'webpack';
 const { extract: extractCss } = ExtractTextPlugin;
 const { TsConfigPathsPlugin } = require('awesome-typescript-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const PurifyPlugin = require('purifycss-webpack');
 
 const PATH_ROOT = __dirname;
 const PATH_SRC = path.join(PATH_ROOT, 'src');
 const PATH_BUILD = path.join(PATH_ROOT, 'build');
+const globPurifyExtensions = '{js,jsx,ts,tsx,html,pug,css,scss}';
 
 export default () => {
   const { NODE_ENV } = process.env;
@@ -212,22 +215,7 @@ export default () => {
     plugins: [
       new (webpack as any).ProgressPlugin(),
 
-      new TsConfigPathsPlugin(),
-
-      new HtmlWebpackPlugin({
-        filename: 'index.html',
-        inject: true,
-        minify: false,
-        template: path.join(PATH_SRC, 'index.pug'),
-      }),
-
-      new ExtractTextPlugin({
-        allChunks: true,
-        disable: false,
-        filename: '[name]-[chunkhash].css',
-      }),
-
-      new webpack.LoaderOptionsPlugin({
+       new webpack.LoaderOptionsPlugin({
         debug: isDev,
         minimize: isProd,
         options: {
@@ -244,11 +232,58 @@ export default () => {
             require('postcss-cssnext')({ browsers: ['last 2 versions', 'IE > 10'] })
           ]),
         }
+      }),
+
+      new TsConfigPathsPlugin(),
+
+      new HtmlWebpackPlugin({
+        filename: 'index.html',
+        inject: true,
+        minify: false,
+        template: path.join(PATH_SRC, 'index.pug'),
+      }),
+
+      new ExtractTextPlugin({
+        allChunks: true,
+        disable: false,
+        filename: '[name]-[chunkhash].css',
+      }),
+
+      isProd && new PurifyPlugin({
+        moduleExtensions: [
+          '.html',
+          '.pug',
+          '.js',
+          '.jsx',
+          '.ts',
+          '.tsx',
+          '.css',
+          '.less',
+          '.sass',
+          '.scss',
+          '.styl'
+        ],
+        // Give paths to parse for rules. These should be absolute!
+        paths: {
+          main: glob.sync(`${PATH_SRC}/**/*.${globPurifyExtensions}`)
+        },
+        purifyOptions: {
+          info: true,
+          minify: true,
+          rejected: false,
+        },
+        styleExtensions: [
+          '.css',
+          '.less',
+          '.sass',
+          '.scss',
+          '.styl'
+        ]
       })
-    ]
+    ].filter(Boolean)
   };
 
-  Boolean(config as Configuration)
+  Boolean(config as Configuration);
 
   return config;
 };

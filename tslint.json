@@ -1,0 +1,15 @@
+{
+  "extends": [
+    "tslint-react",
+    "tslint:recommended"
+  ],
+  "rules": {
+    "quotemark": [true, "single", "avoid-escape"],
+    "no-require-imports": false,
+    "no-var-requires": false,
+    "jsx-no-multiline-js": false,
+    "jsx-curly-spacing": [2, "always", {"spacing": {
+      "objectLiterals": "never"
+    }}]
+  }
+}
