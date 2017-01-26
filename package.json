@@ -7,6 +7,7 @@
     "build-dev": "rm -rf ./build ; ./node_modules/webpack/bin/webpack.js",
     "build-prod": "rm -rf ./build ; NODE_ENV=production ./node_modules/webpack/bin/webpack.js",
     "dev": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline",
+    "lint": "./node_modules/tslint/bin/tslint -c tslint.json ./*.{ts,tsx} src/**/*.{ts,tsx} --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -1,7 +1,7 @@
-import * as path from 'path';
-import * as glob from 'glob';
-import * as webpack from 'webpack';
 import * as ExtractTextPlugin from 'extract-text-webpack-plugin';
+import * as glob from 'glob';
+import * as path from 'path';
+import * as webpack from 'webpack';
 import { Configuration } from 'webpack';
 
 const { extract: extractCss } = ExtractTextPlugin;
@@ -23,51 +23,42 @@ export default () => {
     {
       loader: 'css-loader',
       options: {
-        sourceMap: true,
         importLoaders: 1,
-        minimize: isProd
-      }
+        minimize: isProd,
+        sourceMap: true,
+      },
     },
     {
-      loader: 'postcss-loader'
-    }
+      loader: 'postcss-loader',
+    },
   ];
 
   const cssLoaderLocal = [
     {
       loader: 'css-loader',
       options: {
-        sourceMap: true,
         importLoaders: 1,
         localIdentName: '[name]_[local]_[hash:base64:3]',
+        minimize: isProd,
         modules: true,
-        minimize: isProd
-      }
+        sourceMap: true,
+      },
     },
     {
-      loader: 'postcss-loader'
-    }
+      loader: 'postcss-loader',
+    },
   ];
 
   const config = {
     context: PATH_SRC,
+
+    devtool: 'source-map' as any,
+
     entry: {
       main: [
         path.join(PATH_SRC, './main.tsx'),
-      ]
+      ],
     },
-    output: {
-      chunkFilename: '[name]-[chunkhash].js',
-      filename: '[name]-[hash].js',
-      path: PATH_BUILD,
-      publicPath: '',
-    },
-    // Currently we need to add '.ts' to the resolve.extensions array.
-    resolve: {
-      extensions: ['.ts', '.tsx', '.js', '.jsx']
-    },
-
-    devtool: 'source-map' as any,
 
     module: {
       rules: [
@@ -75,9 +66,9 @@ export default () => {
           test: /\.(ts|tsx)$/,
           use: [
             {
-              loader: 'awesome-typescript-loader'
-            }
-          ]
+              loader: 'awesome-typescript-loader',
+            },
+          ],
         },
 
         {
@@ -87,9 +78,9 @@ export default () => {
               loader: 'pug-loader',
               options: {
                 pretty: false,
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
 
         {
@@ -99,9 +90,9 @@ export default () => {
               loader: 'file-loader',
               options: {
                 name: '[sha512:hash:base64:7].[ext]',
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
 
         // normal css loader
@@ -110,12 +101,12 @@ export default () => {
             /\.local\.(css)$/,
             /[\/\\]node_modules[\/\\]flexboxgrid/,
           ],
-          test: /\.(css)$/,
           loaders: extractCss({
             loader: [
-              ...cssLoaderNormal
-            ]
-          } as any)
+              ...cssLoaderNormal,
+            ],
+          } as any),
+          test: /\.(css)$/,
         },
 
         // local css loader
@@ -123,12 +114,12 @@ export default () => {
           exclude: [
             /node_modules/,
           ],
-          test: /\.local\.(css)$/,
           loaders: extractCss({
             loader: [
-              ...cssLoaderLocal
-            ]
-          } as any)
+              ...cssLoaderLocal,
+            ],
+          } as any),
+          test: /\.local\.(css)$/,
         },
 
         // Local sass specific node_modules includes
@@ -136,12 +127,12 @@ export default () => {
           include: [
             /[\/\\]node_modules[\/\\]flexboxgrid/,
           ],
-          test: /\.(css)$/,
           loaders: extractCss({
             loader: [
-              ...cssLoaderLocal
-            ]
-          } as any)
+              ...cssLoaderLocal,
+            ],
+          } as any),
+          test: /\.(css)$/,
         },
 
         // normal sass loader
@@ -150,21 +141,21 @@ export default () => {
             /\.local\.(scss)$/,
             /[\/\\]node_modules[\/\\]react-toolbox/,
           ],
-          test: /\.(scss)$/,
           loaders: extractCss({
             loader: [
               ...cssLoaderNormal,
               {
-                loader: 'resolve-url-loader'
+                loader: 'resolve-url-loader',
               },
               {
                 loader: 'sass-loader',
                 options: {
-                  sourceMap: true
-                }
-              }
-            ]
-          } as any)
+                  sourceMap: true,
+                },
+              },
+            ],
+          } as any),
+          test: /\.(scss)$/,
         },
 
         // local sass loader
@@ -172,21 +163,21 @@ export default () => {
           exclude: [
             /node_modules/,
           ],
-          test: /\.local\.(scss)$/,
           loaders: extractCss({
             loader: [
               ...cssLoaderLocal,
               {
-                loader: 'resolve-url-loader'
+                loader: 'resolve-url-loader',
               },
               {
                 loader: 'sass-loader',
                 options: {
-                  sourceMap: true
-                }
-              }
-            ]
-          } as any)
+                  sourceMap: true,
+                },
+              },
+            ],
+          } as any),
+          test: /\.local\.(scss)$/,
         },
 
         // Local sass specific node_modules includes
@@ -194,28 +185,36 @@ export default () => {
           include: [
             /[\/\\]node_modules[\/\\]react-toolbox/,
           ],
-          test: /\.(scss)$/,
           loaders: extractCss({
             loader: [
               ...cssLoaderLocal,
               {
-                loader: 'resolve-url-loader'
+                loader: 'resolve-url-loader',
               },
               {
                 loader: 'sass-loader',
                 options: {
-                  sourceMap: true
-                }
-              }
-            ]
-          } as any)
-        }
-      ]
+                  sourceMap: true,
+                },
+              },
+            ],
+          } as any),
+          test: /\.(scss)$/,
+        },
+      ],
     },
+
+    output: {
+      chunkFilename: '[name]-[chunkhash].js',
+      filename: '[name]-[hash].js',
+      path: PATH_BUILD,
+      publicPath: '',
+    },
+
     plugins: [
       new (webpack as any).ProgressPlugin(),
 
-       new webpack.LoaderOptionsPlugin({
+      new webpack.LoaderOptionsPlugin({
         debug: isDev,
         minimize: isProd,
         options: {
@@ -229,9 +228,9 @@ export default () => {
           },
 
           postcss: () => ([
-            require('postcss-cssnext')({ browsers: ['last 2 versions', 'IE > 10'] })
+            require('postcss-cssnext')({ browsers: ['last 2 versions', 'IE > 10'] }),
           ]),
-        }
+        },
       }),
 
       new TsConfigPathsPlugin(),
@@ -261,11 +260,11 @@ export default () => {
           '.less',
           '.sass',
           '.scss',
-          '.styl'
+          '.styl',
         ],
         // Give paths to parse for rules. These should be absolute!
         paths: {
-          main: glob.sync(`${PATH_SRC}/**/*.${globPurifyExtensions}`)
+          main: glob.sync(`${PATH_SRC}/**/*.${globPurifyExtensions}`),
         },
         purifyOptions: {
           info: true,
@@ -277,10 +276,15 @@ export default () => {
           '.less',
           '.sass',
           '.scss',
-          '.styl'
-        ]
-      })
-    ].filter(Boolean)
+          '.styl',
+        ],
+      }),
+    ].filter(Boolean),
+
+    resolve: {
+      extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    },
+
   };
 
   Boolean(config as Configuration);
