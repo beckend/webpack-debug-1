@@ -122,7 +122,7 @@ export default () => {
           test: /\.local\.(css)$/,
         },
 
-        // Local sass specific node_modules includes
+        // local css specific node_modules includes
         {
           include: [
             /[\/\\]node_modules[\/\\]flexboxgrid/,
@@ -180,7 +180,7 @@ export default () => {
           test: /\.local\.(scss)$/,
         },
 
-        // Local sass specific node_modules includes
+        // local sass specific node_modules includes
         {
           include: [
             /[\/\\]node_modules[\/\\]react-toolbox/,
